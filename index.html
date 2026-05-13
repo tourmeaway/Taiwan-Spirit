@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do You Have the Spirit of Taiwan?</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Bebas+Neue&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --red: #E5001A; --navy: #003087; --gold: #FFB800; }
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: linear-gradient(160deg, #0a1f5c 0%, #1a3a8a 50%, #9b0018 100%);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  overflow-x: hidden; color: white;
+}
+.deco { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
+.deco1 { width: 500px; height: 500px; background: rgba(255,255,255,0.04); top: -150px; right: -150px; }
+.deco2 { width: 350px; height: 350px; background: rgba(255,184,0,0.06); bottom: -100px; left: -100px; }
+.main { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+header { text-align: center; padding: 1.8rem 1rem 0.8rem; }
+.app-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 5.5vw, 3.2rem); letter-spacing: 0.04em; line-height: 1.05; text-shadow: 3px 3px 0 var(--red); }
+.app-subtitle { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 0.35rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.progress-wrap { width: 280px; height: 7px; background: rgba(255,255,255,0.15); border-radius: 99px; margin: 0.7rem auto 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gold); border-radius: 99px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+.progress-label { font-size: 0.7rem; color: rgba(255,255,255,0.45); text-align: center; margin-top: 0.28rem; }
+
+.deck-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem 1rem 0.5rem; width: 100%; }
+.card-stack { position: relative; width: 320px; height: 460px; }
+
+.card {
+  position: absolute; inset: 0; border-radius: 22px;
+  background: white; color: #111;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 1.6rem 1.6rem 1.2rem;
+  box-shadow: 0 22px 60px rgba(0,0,0,0.4);
+  user-select: none; touch-action: none; will-change: transform; overflow: hidden;
+}
+.card.behind { transform: scale(0.93) translateY(14px); z-index: 0; filter: brightness(0.85); pointer-events: none; }
+.card.active { z-index: 2; cursor: grab; }
+.card.active:active { cursor: grabbing; }
+
+.card-label { font-size: 0.64rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(0,0,0,0.28); margin-bottom: 0.5rem; align-self: flex-start; }
+.card-question { font-size: 1.2rem; font-weight: 700; text-align: center; color: #0a1f5c; line-height: 1.3; margin-bottom: 1rem; width: 100%; }
+.card-visual { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; overflow: hidden; border-radius: 12px; }
+.card-visual img { max-width: 100%; max-height: 190px; object-fit: contain; border-radius: 10px; }
+.card-hint { font-size: 0.7rem; color: rgba(0,0,0,0.32); text-align: center; line-height: 1.55; width: 100%; margin-top: auto; }
+
+.stamp { position: absolute; top: 28px; font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 0.06em; padding: 0.15em 0.45em; border-radius: 6px; border-width: 4px; border-style: solid; pointer-events: none; opacity: 0; z-index: 10; }
+.stamp-yes { left: 16px; color: #1a8a2f; border-color: #1a8a2f; transform: rotate(-12deg); }
+.stamp-no  { right: 16px; color: #c8001a; border-color: #c8001a; transform: rotate(12deg); }
+
+.action-buttons { display: flex; gap: 2.5rem; margin-top: 1.2rem; align-items: center; }
+.btn-swipe { width: 62px; height: 62px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.7rem; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s; }
+.btn-swipe:hover { transform: scale(1.13); box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
+.btn-swipe:active { transform: scale(0.95); }
+.btn-label { font-size: 0.65rem; color: rgba(255,255,255,0.45); text-align: center; margin-top: 0.3rem; letter-spacing: 0.08em; }
+.swipe-hint { font-size: 0.68rem; color: rgba(255,255,255,0.35); text-align: center; margin-top: 0.5rem; letter-spacing: 0.04em; }
+
+.result-screen { display: none; flex-direction: column; align-items: center; padding: 2rem 1.5rem; text-align: center; }
+.result-screen.visible { display: flex; }
+.result-icon { font-size: 4.5rem; margin-bottom: 0.8rem; }
+.result-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.2rem, 7vw, 4rem); letter-spacing: 0.05em; line-height: 1.05; text-shadow: 3px 3px 0 rgba(0,0,0,0.3); margin-bottom: 0.4rem; }
+.result-hodala { font-family: 'Noto Sans TC', sans-serif; font-size: clamp(1.8rem, 5.5vw, 3rem); font-weight: 900; color: var(--gold); letter-spacing: 0.06em; margin-bottom: 0.5rem; text-shadow: 2px 2px 0 rgba(0,0,0,0.35); }
+.result-subtitle { font-size: 0.95rem; color: rgba(255,255,255,0.75); max-width: 340px; line-height: 1.65; margin-bottom: 1.2rem; }
+.score-badge { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 99px; padding: 0.45em 1.5em; letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+.review-list { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 0.9rem 1.2rem; max-width: 360px; width: 100%; margin-bottom: 1.5rem; text-align: left; }
+.review-list h3 { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 0.65rem; }
+.review-item { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.38rem 0; font-size: 0.8rem; border-bottom: 0.5px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.78); line-height: 1.45; }
+.review-item:last-child { border-bottom: none; }
+.btn-restart { background: var(--gold); color: #0a1f5c; border: none; border-radius: 99px; padding: 0.8em 2.4em; font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; letter-spacing: 0.04em; transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.btn-restart:hover { transform: scale(1.07); }
+
+/* WRONG ANSWER MODAL */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-backdrop.visible {
+  opacity: 1; pointer-events: all;
+}
+.modal-sheet {
+  background: #fff;
+  color: #111;
+  border-radius: 24px 24px 0 0;
+  padding: 1.2rem 1.6rem 2.4rem;
+  width: 100%;
+  max-width: 480px;
+  transform: translateY(60px);
+  transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+  position: relative;
+}
+.modal-backdrop.visible .modal-sheet {
+  transform: translateY(0);
+}
+.modal-handle {
+  width: 40px; height: 5px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 99px;
+  margin: 0 auto 1.2rem;
+}
+.modal-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+.modal-icon { font-size: 2rem; flex-shrink: 0; }
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: #c8001a;
+  line-height: 1;
+}
+.modal-question {
+  font-size: 0.8rem;
+  color: rgba(0,0,0,0.4);
+  margin-bottom: 0.9rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+.modal-explanation {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #222;
+  background: #f7f8ff;
+  border-left: 3px solid #003087;
+  border-radius: 0 10px 10px 0;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1.4rem;
+}
+.modal-close {
+  width: 100%;
+  background: #003087;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 1em;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, transform 0.15s;
+}
+.modal-close:hover { background: #001f5e; transform: scale(1.02); }
+.modal-close:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+<div class="deco deco1"></div>
+<div class="deco deco2"></div>
+<div class="main">
+  <header>
+    <div class="app-title">Do You Have the<br>Spirit of Taiwan?</div>
+    <div class="app-subtitle">Swipe right YES · Swipe left NO</div>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">Question 1 of 7</div>
+  </header>
+
+  <div class="deck-area" id="deckArea">
+    <div class="card-stack" id="cardStack"></div>
+    <div class="action-buttons">
+      <div style="text-align:center">
+        <button class="btn-swipe" id="btnNo">❌</button>
+        <div class="btn-label">← NO</div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn-swipe" id="btnYes">💚</button>
+        <div class="btn-label">YES →</div>
+      </div>
+    </div>
+    <div class="swipe-hint">Drag card · or use buttons · keyboard ← →</div>
+  </div>
+
+  <div class="result-screen" id="resultScreen"></div>
+
+  <footer style="text-align:center;padding:1.5rem 1rem 2rem;margin-top:auto;">
+    <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);line-height:1.7;max-width:320px;margin:0 auto;">
+      Want to learn more stories about Taiwan?<br>Come join our walking tours in Taipei!
+    </div>
+    <a href="https://www.TourMeAway.com" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.6rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:0.45em 1.2em;color:white;text-decoration:none;font-size:0.8rem;font-weight:600;letter-spacing:0.04em;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+      🗺️ www.TourMeAway.com
+    </a>
+  </footer>
+</div>
+
+<!-- Wrong answer modal -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="handleBackdropClick(event)">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-icon">😬</div>
+      <div class="modal-title">Oops, not quite!</div>
+    </div>
+    <div class="modal-question" id="modalQuestion"></div>
+    <div class="modal-explanation" id="modalExplanation"></div>
+    <button class="modal-close" onclick="closeModal()">Got it — next question 👉</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    label: "Question 1",
+    question: "Is this Taiwan's national flag?",
+    correct: true,
+    hint: "The flag of the Republic of China, used by the government in Taipei since 1928.",
+    visual: `<div style="font-size:9rem;line-height:1;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.12));">🇹🇼</div>`
+  },
+  {
+    label: "Question 2",
+    question: '"Republic of China" — is this Taiwan?',
+    correct: true,
+    hint: "Taiwan's official government name since 1912. Still printed on every Taiwanese passport.",
+    visual: `<div style="text-align:center;">
+      <div style="font-family:'Noto Sans TC',sans-serif;font-size:2.4rem;font-weight:900;color:#003087;line-height:1.2;">中華民國</div>
+      <div style="font-size:0.65rem;color:rgba(0,0,0,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;">Republic of China</div>
+      <div style="background:#E5001A;color:white;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 1em;border-radius:99px;margin-top:10px;display:inline-block;">Est. 1912</div>
+    </div>`
+  },
+  {
+    label: "Question 3",
+    question: "This is how Taiwan appears at the Olympics — agree?",
+    correct: true,
+    hint: "Taiwan competes as \"Chinese Taipei\" since 1981 due to political pressure. Using the name \"Taiwan\" at the Olympics is... complicated. 😶",
+    visual: `<div style="text-align:center;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Chinese_Taipei_for_Olympic_Games.svg/960px-Flag_of_Chinese_Taipei_for_Olympic_Games.svg.png" alt="Chinese Taipei Olympic Flag" style="max-height:170px;max-width:100%;object-fit:contain;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,0.12);">
+      <div style="font-size:0.65rem;color:rgba(0,0,0,0.3);margin-top:6px;letter-spacing:0.06em;">Chinese Taipei · 中華台北</div>
+    </div>`
+  },
+  {
+    label: "Question 4",
+    question: "Formosa — is this another name for Taiwan?",
+    correct: true,
+    hint: "Portuguese sailors in 1544 called it Ilha Formosa — \"beautiful island\". The name still lives on in many hearts and brand names.",
+    visual: `<div style="text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;letter-spacing:0.08em;color:#c8001a;line-height:1;">FORMOSA</div>
+      <div style="font-size:0.78rem;color:rgba(0,0,0,0.38);font-style:italic;margin-top:8px;">"Ilha Formosa" — Portuguese, 1544</div>
+      <div style="font-size:2rem;margin-top:10px;">⛵🌊🏝️</div>
+    </div>`
+  },
+  {
+    label: "Question 5",
+    question: "Did Taiwan invent bubble tea?",
+    correct: true,
+    hint: "YES — boba was invented in Taiwan in the 1980s (Tainan vs Taichung are still arguing about who did it first). Taiwan gave the world its greatest gift. 🧋",
+    visual: `<div style="font-size:7rem;line-height:1;">🧋</div>`
+  },
+  {
+    label: "Question 6",
+    question: "Taiwan plays no part in the world's economy and has little impact on the AI industry.",
+    correct: false,
+    hint: "FALSE! TSMC (headquartered in Hsinchu, Taiwan) makes 90%+ of the world's most advanced chips. No Taiwan = no AI. Every GPU in every data center runs on Taiwan silicon.",
+    visual: `<div style="text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:0.05em;color:#003087;line-height:1;">TSMC</div>
+      <div style="font-size:0.68rem;color:rgba(0,0,0,0.35);margin-top:6px;max-width:220px;line-height:1.5;">Makes 90%+ of the world's most advanced semiconductors. Your phone. Your laptop. Every AI chip.</div>
+      <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
+        <span style="background:#eef2ff;color:#003087;font-size:0.58rem;font-weight:700;padding:0.28em 0.7em;border-radius:99px;">Apple M chips ✓</span>
+        <span style="background:#eef2ff;color:#003087;font-size:0.58rem;font-weight:700;padding:0.28em 0.7em;border-radius:99px;">NVIDIA GPUs ✓</span>
+        <span style="background:#eef2ff;color:#003087;font-size:0.58rem;font-weight:700;padding:0.28em 0.7em;border-radius:99px;">AMD CPUs ✓</span>
+      </div>
+    </div>`
+  },
+  {
+    label: "Question 7",
+    question: "Taiwan's stock market is bigger than England's and Canada's.",
+    correct: true,
+    hint: "TRUE — in 2026, the Taiwan Stock Exchange surpassed the UK and Canada to become the 6th largest stock market in the world, driven largely by TSMC's massive valuation.",
+    visual: `<div style="text-align:center;width:100%;">
+      <div style="font-size:0.6rem;color:rgba(0,0,0,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Global Stock Markets by Size</div>
+      ${[['🇺🇸','USA'],['🇨🇳','China'],['🇯🇵','Japan'],['🇭🇰','Hong Kong'],['🇮🇳','India']].map(([f,n],i)=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.74rem;color:rgba(0,0,0,0.45);">
+          <span style="width:18px;text-align:right;font-size:0.65rem;color:rgba(0,0,0,0.25);font-weight:600;">${i+1}</span>
+          <span>${f} ${n}</span>
+        </div>`).join('')}
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.8rem;font-weight:700;color:#003087;background:#deeaff;border-radius:8px;padding:5px 6px;">
+        <span style="width:18px;text-align:right;font-size:0.7rem;font-weight:700;color:#003087;">6</span>
+        <span>🇹🇼 Taiwan 🔥</span>
+      </div>
+      ${[['🇬🇧','England'],['🇨🇦','Canada']].map(([f,n],i)=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.74rem;color:rgba(0,0,0,0.38);">
+          <span style="width:18px;text-align:right;font-size:0.65rem;color:rgba(0,0,0,0.22);font-weight:600;">${i+7}</span>
+          <span>${f} ${n}</span>
+        </div>`).join('')}
+    </div>`
+  }
+];
+
+let current = 0, answers = [];
+let isDragging = false, startX = 0, dragOffset = 0;
+let activeCard = null;
+let mmListener = null, muListener = null;
+
+function buildCards() {
+  const stack = document.getElementById('cardStack');
+  stack.innerHTML = '';
+  if (current + 1 < QUESTIONS.length) {
+    stack.appendChild(makeCard(QUESTIONS[current + 1], false));
+  }
+  if (current < QUESTIONS.length) {
+    const card = makeCard(QUESTIONS[current], true);
+    stack.appendChild(card);
+    activeCard = card;
+    bindDrag(card);
+  }
+  updateProgress();
+}
+
+function makeCard(q, isActive) {
+  const el = document.createElement('div');
+  el.className = 'card ' + (isActive ? 'active' : 'behind');
+  el.innerHTML = `
+    <div class="stamp stamp-yes">IS TAIWAN 🇹🇼</div>
+    <div class="stamp stamp-no">NOPE ✗</div>
+    <div class="card-label">${q.label}</div>
+    <div class="card-question">${q.question}</div>
+    <div class="card-visual">${q.visual}</div>
+  `;
+  return el;
+}
+
+function bindDrag(card) {
+  // Clean up any old listeners
+  if (mmListener) document.removeEventListener('mousemove', mmListener);
+  if (muListener) document.removeEventListener('mouseup', muListener);
+
+  card.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX; isDragging = true;
+  }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    applyDrag(card, e.touches[0].clientX - startX);
+  }, { passive: true });
+
+  card.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    resolveSwipe(card, dragOffset);
+  });
+
+  card.addEventListener('mousedown', e => {
+    startX = e.clientX; isDragging = true; e.preventDefault();
+  });
+
+  mmListener = e => {
+    if (!isDragging) return;
+    applyDrag(card, e.clientX - startX);
+  };
+  muListener = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    resolveSwipe(card, dragOffset);
+  };
+  document.addEventListener('mousemove', mmListener);
+  document.addEventListener('mouseup', muListener);
+}
+
+function applyDrag(card, dx) {
+  dragOffset = dx;
+  card.style.transition = 'none';
+  card.style.transform = `translateX(${dx}px) rotate(${dx * 0.07}deg)`;
+  const sy = card.querySelector('.stamp-yes');
+  const sn = card.querySelector('.stamp-no');
+  sy.style.opacity = dx > 25 ? Math.min((dx - 25) / 70, 1) : 0;
+  sn.style.opacity = dx < -25 ? Math.min((-dx - 25) / 70, 1) : 0;
+}
+
+function resolveSwipe(card, dx) {
+  if (dx > 80) flyOut(card, 1, () => record(true));
+  else if (dx < -80) flyOut(card, -1, () => record(false));
+  else {
+    card.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+    card.style.transform = '';
+    card.querySelector('.stamp-yes').style.opacity = 0;
+    card.querySelector('.stamp-no').style.opacity = 0;
+    dragOffset = 0;
+  }
+}
+
+function flyOut(card, dir, cb) {
+  card.style.transition = 'transform 0.38s ease-in, opacity 0.3s';
+  card.style.transform = `translateX(${dir * 520}px) rotate(${dir * 22}deg)`;
+  card.style.opacity = '0';
+  setTimeout(cb, 360);
+}
+
+let pendingAdvance = null;
+
+function record(isYes) {
+  const q = QUESTIONS[current];
+  const isCorrect = isYes === q.correct;
+  answers.push({ question: q, answered: isYes });
+  current++;
+
+  if (!isCorrect) {
+    // Show explanation modal before advancing
+    pendingAdvance = () => {
+      if (current >= QUESTIONS.length) showResult();
+      else buildCards();
+    };
+    showModal(q, isYes);
+  } else {
+    if (current >= QUESTIONS.length) showResult();
+    else buildCards();
+  }
+}
+
+function showModal(q, userAnswered) {
+  document.getElementById('modalQuestion').textContent = q.question;
+  document.getElementById('modalExplanation').textContent = q.hint;
+  const backdrop = document.getElementById('modalBackdrop');
+  backdrop.classList.add('visible');
+  // Trap keyboard
+  document.addEventListener('keydown', modalKeyHandler);
+}
+
+function closeModal() {
+  const backdrop = document.getElementById('modalBackdrop');
+  backdrop.classList.remove('visible');
+  document.removeEventListener('keydown', modalKeyHandler);
+  if (pendingAdvance) { pendingAdvance(); pendingAdvance = null; }
+}
+
+function handleBackdropClick(e) {
+  // Close if clicking the dark backdrop, not the sheet itself
+  if (e.target === document.getElementById('modalBackdrop')) closeModal();
+}
+
+function modalKeyHandler(e) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') closeModal();
+}
+
+function swipeRight() { if (activeCard) flyOut(activeCard, 1, () => record(true)); }
+function swipeLeft()  { if (activeCard) flyOut(activeCard, -1, () => record(false)); }
+
+document.getElementById('btnYes').addEventListener('click', swipeRight);
+document.getElementById('btnNo').addEventListener('click', swipeLeft);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') swipeRight();
+  if (e.key === 'ArrowLeft') swipeLeft();
+});
+
+function updateProgress() {
+  const pct = (current / QUESTIONS.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    current < QUESTIONS.length ? `Question ${current + 1} of ${QUESTIONS.length}` : 'Complete!';
+}
+
+function showResult() {
+  document.getElementById('deckArea').style.display = 'none';
+  updateProgress();
+  const correct = answers.filter(a => a.answered === a.question.correct).length;
+  const pct = correct / QUESTIONS.length;
+  const pass = pct >= 0.75;
+
+  const reviewHtml = answers.map((a, i) => {
+    const right = a.answered === a.question.correct;
+    const q = a.question.question.length > 52 ? a.question.question.substring(0, 52) + '…' : a.question.question;
+    return `<div class="review-item" id="ri-${i}">
+      <span style="flex-shrink:0;margin-top:1px">${right ? '✅' : '❌'}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+          <span style="line-height:1.4;">${q} — <strong>${a.answered ? 'YES' : 'NO'}</strong></span>
+          <button onclick="toggleHint(${i})" style="flex-shrink:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:99px;color:rgba(255,255,255,0.6);font-size:0.62rem;padding:0.2em 0.55em;cursor:pointer;letter-spacing:0.04em;white-space:nowrap;" id="hint-btn-${i}">why? 💡</button>
+        </div>
+        <div id="hint-${i}" style="display:none;margin-top:5px;font-size:0.72rem;color:rgba(255,255,255,0.55);line-height:1.5;padding:6px 8px;background:rgba(255,255,255,0.06);border-radius:6px;border-left:2px solid ${right ? '#1a8a2f' : '#c8001a'};">${a.question.hint}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const screen = document.getElementById('resultScreen');
+  screen.className = 'result-screen visible';
+  screen.innerHTML = pass ? `
+    <div class="result-icon">🇹🇼🍻🎉</div>
+    <div class="result-title">You Have the<br>Spirit of Taiwan!</div>
+    <div class="result-hodala">HO DA LA! 乾杯!</div>
+    <div class="result-subtitle">You got <strong>${correct} out of ${QUESTIONS.length}</strong> correct. You truly understand Taiwan's complex, fascinating identity. Now raise a glass of Taiwan Beer and celebrate! 🍺</div>
+    <div class="score-badge">Score: ${correct}/${QUESTIONS.length} · ${Math.round(pct * 100)}%</div>
+    <div class="review-list"><h3>Your answers</h3>${reviewHtml}</div>
+    <button class="btn-restart" onclick="restart()">Play Again 🔄</button>
+  ` : `
+    <div class="result-icon">😅🫶</div>
+    <div class="result-title">Keep Learning,<br>Friend!</div>
+    <div class="result-subtitle">You got <strong>${correct} out of ${QUESTIONS.length}</strong> (${Math.round(pct * 100)}%). You need 75% to earn the Spirit of Taiwan — but hey, at least you know it exists! 台灣加油！🇹🇼</div>
+    <div class="score-badge">Score: ${correct}/${QUESTIONS.length} · ${Math.round(pct * 100)}%</div>
+    <div class="review-list"><h3>Your answers</h3>${reviewHtml}</div>
+    <button class="btn-restart" onclick="restart()">Try Again 🔄</button>
+  `;
+}
+
+function toggleHint(i) {
+  const hint = document.getElementById('hint-' + i);
+  const btn = document.getElementById('hint-btn-' + i);
+  const open = hint.style.display === 'none';
+  hint.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? 'hide ✕' : 'why? 💡';
+}
+
+function restart() {
+  current = 0; answers = []; activeCard = null; dragOffset = 0;
+  document.getElementById('resultScreen').className = 'result-screen';
+  document.getElementById('deckArea').style.display = '';
+  buildCards();
+}
+
+buildCards();
+</script>
+</body>
+</html>
